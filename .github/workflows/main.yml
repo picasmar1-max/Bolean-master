@@ -30,14 +30,29 @@ jobs:
         pip install --upgrade pip
         pip install "buildozer>=1.5.0" "cython<3.0.0" virtualenv
 
+    - name: Generate Clean Buildozer Spec
+      run: |
+        cat << 'EOF' > buildozer.spec
+        [app]
+        title = Boolean Master
+        package.name = booleanmaster
+        package.domain = org.test
+        source.dir = .
+        source.include_exts = py,png,jpg,kv,atlas
+        version = 0.1
+        requirements = python3, kivy, sympy
+        orientation = portrait
+        fullscreen = 0
+        android.archs = arm64-v8a, armeabi-v7a
+        android.minapi = 21
+        android.ndk_api = 33
+        android.private_storage = True
+        
+        [buildozer]
+        log_level = 2
+        warn_on_root = 1
+        EOF
+
     - name: Build APK with Buildozer
       run: |
         buildozer -v android debug
-      env:
-        REQS: python3,kivy,sympy
-
-    - name: Upload APK Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: BooleanMaster-APK
-        path: bin/*.apk

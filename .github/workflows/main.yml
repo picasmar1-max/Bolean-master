@@ -1,0 +1,36 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Get Date
+      id: get-date
+      run: |
+        echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+
+    - name: Cache Buildozer
+      uses: actions/cache@v3
+      with:
+        path: ./.buildozer
+        key: ${{ runner.os }}-buildozer-${{ steps.get-date.outputs.date }}
+
+    - name: Build with Buildozer
+      uses: ArtemGovorov/buildozer-action@v1
+      with:
+        command: buildozer -v android debug
+        repository_root: .
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v3
+      with:
+        name: BooleanMaster-APK
+        path: bin/*.apk

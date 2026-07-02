@@ -7,28 +7,10 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
-
-    - name: Setup Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.10'
-
-    - name: Install Buildozer dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y --no-install-recommends \
-          build-essential libsqlite3-dev gawk unzip git ccache \
-          openjdk-17-jdk zip libffi-dev python3-dev libssl-dev \
-          patch autoconf automake libtool pkg-config
-
-    - name: Install Buildozer and Cython
-      run: |
-        pip install --upgrade pip
-        pip install "buildozer>=1.5.0" "cython<3.0.0" virtualenv
 
     - name: Generate Clean Buildozer Spec
       run: |
@@ -53,6 +35,14 @@ jobs:
         warn_on_root = 1
         EOF
 
-    - name: Build APK with Buildozer
-      run: |
-        buildozer -v android debug
+    - name: Build APK with Buildozer Action
+      uses: subinc/buildozer-action@v2
+      with:
+        workdir: .
+        buildozer_version: 'stable'
+
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: BooleanMaster-APK
+        path: bin/*.apk
